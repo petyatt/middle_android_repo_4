@@ -27,10 +27,14 @@ class AppViewModel(
     private var pagingItems: LazyPagingItems<News>? = null
 
     @OptIn(ExperimentalPagingApi::class)
-    fun getNews(): Flow<PagingData<News>> =
-    // Допишите реализацию метода, используя класс Pager()
-    // Для реализации фабрики используйте newsDatabase
-    // Реализуйте NewsRemoteMediator() используя newsService и newsDatabase
+    fun getNews(): Flow<PagingData<News>> = Pager(
+        config = PagingConfig(
+            pageSize = PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE
+        ),
+        remoteMediator = NewsRemoteMediator(newsService, newsDatabase),
+        pagingSourceFactory = { newsDatabase.getNewsDao().getNews() }
+    ).flow
 
     fun attachPagingItems(paging: LazyPagingItems<News>?) {
         pagingItems = paging
